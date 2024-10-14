@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
-[CreateAssetMenu(fileName = "GameManager", menuName = "ScriptableObjects/GameManager")]
-public class GameManager : ScriptableObject
+[CreateAssetMenu(fileName = "SceneManagerSO", menuName = "ScriptableObjects/SceneManagerSO")]
+public class SceneManagerSO : ScriptableObject
 {
     [System.Serializable]
     public class SceneTransition
