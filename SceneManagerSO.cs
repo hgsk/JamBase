@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
+using System.Collections;
 
 [CreateAssetMenu(fileName = "SceneManagerSO", menuName = "ScriptableObjects/SceneManagerSO")]
 public class SceneManagerSO : ScriptableObject
@@ -13,9 +14,18 @@ public class SceneManagerSO : ScriptableObject
     }
 
     public SceneTransition[] sceneTransitions;
+    public float transitionDuration = 1f;
 
     public void LoadScene(string sceneName)
     {
+        SceneTransitionManager.Instance.PlayOutTransition();
+        CoroutineRunner.Instance.StartCoroutine(LoadSceneCoroutine(sceneName));
+    }
+
+    private IEnumerator LoadSceneCoroutine(string sceneName)
+    {
+        yield return new WaitForSeconds(transitionDuration);
+
         SceneManager.LoadScene(sceneName);
         
         foreach (var transition in sceneTransitions)
@@ -26,5 +36,7 @@ public class SceneManagerSO : ScriptableObject
                 break;
             }
         }
+
+        SceneTransitionManager.Instance.PlayInTransition();
     }
 }
