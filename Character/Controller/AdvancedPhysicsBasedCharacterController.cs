@@ -44,6 +44,16 @@ public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
         KeepUpright();
     }
 
+
+    public void SwitchInputStrategy(InputStrategySO newStrategy)
+    {
+        var inputHandler = GetComponent<CharacterInputHandler>();
+        if (inputHandler != null)
+        {
+            inputHandler.SetInputStrategy(newStrategy);
+        }
+    }
+
     void ApplyFloatingForce()
     {
         RaycastHit hit;
