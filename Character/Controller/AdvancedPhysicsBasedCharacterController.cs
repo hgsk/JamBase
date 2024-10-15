@@ -77,6 +77,35 @@ public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
         }
     }
 
+    public void SwitchInputStrategy(InputStrategySO newStrategy)
+    {
+        var inputHandler = GetComponent<CharacterInputHandler>();
+        if (inputHandler != null)
+        {
+            inputHandler.SetInputStrategy(newStrategy);
+        }
+    }
+
+    public void SwitchInputStrategy(InputStrategySO newStrategy)
+    {
+        var inputHandler = GetComponent<CharacterInputHandler>();
+        if (inputHandler != null)
+        {
+            inputHandler.SetInputStrategy(newStrategy);
+        }
+    }
+    public void SwitchInputHandler<T>() where T : CharacterInputHandler
+    {
+        var currentHandler = GetComponent<CharacterInputHandler>();
+        if (currentHandler != null)
+        {
+            Destroy(currentHandler);
+        }
+
+        var newHandler = gameObject.AddComponent<T>();
+        newHandler.inputEvents = this.inputEvents;
+    }
+
     void HandleMoveInput(Vector2 input)
     {
         moveInput = input;
