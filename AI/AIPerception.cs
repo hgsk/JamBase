@@ -1,3 +1,10 @@
+/*
+1. 必要な知覚タイプ（VisionSense、HearingSense等）のScriptableObjectをプロジェクト内で作成します。
+2. AIPerceptionのScriptableObjectを作成し、使用する知覚タイプを設定します。
+3. AIエージェントのゲームオブジェクトにAIPerceptionComponentをアタッチし、作成したAIPerceptionをアサインします。
+4. AIの行動を制御するスクリプト内で、`AIPerceptionComponent.GetPerceivedTargets()`メソッドを呼び出して、知覚された対象を取得し、それに基づいて行動を決定します。
+*/
+
 using UnityEngine;
 using System.Collections.Generic;
 
