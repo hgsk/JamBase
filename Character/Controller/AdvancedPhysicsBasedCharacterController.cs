@@ -1,7 +1,29 @@
 using UnityEngine;
+using UnityEngine.Events;
+using System.Collections.Generic;
 
+// 能力のインターフェース
+public interface IAbility
+{
+    void Initialize(AdvancedPhysicsBasedCharacterController controller);
+    void ProcessAbility(float deltaTime);
+    void OnInputReceived(EnhancedInputComponent.InputContext context);
+}
+
+// キャラクターコントローラー
 public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
 {
+    [System.Serializable]
+    public class InputEvents
+    {
+        public UnityEvent<Vector2> OnMove;
+        public UnityEvent<bool> OnJump;
+        public UnityEvent<string, EnhancedInputComponent.InputContext> OnCustomAction;
+    }
+
+    [Header("Input")]
+    public InputEvents inputEvents;
+
     [Header("Movement")]
     public float maxSpeed = 5f;
     public float acceleration = 30f;
@@ -13,44 +35,74 @@ public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
     public float springForce = 100f;
     public float dampingForce = 10f;
 
-    [Header("Jumping")]
-    public float jumpForce = 5f;
-    public float downwardForce = 20f;
-    public float coyoteTime = 0.1f;
-    public float jumpBufferTime = 0.1f;
-
     [Header("Orientation")]
     public float turnSpeed = 720f;
 
-    private Rigidbody rb;
-    private bool isGrounded;
-    private float lastGroundedTime;
-    private float lastJumpPressedTime;
+    // Public properties
+    public Rigidbody Rigidbody { get; private set; }
+    public bool IsGrounded { get; private set; }
+    public Vector3 DesiredMoveDirection { get; private set; }
+
     private Vector3 currentMoveDirection;
-    private Vector3 desiredMoveDirection;
+    private Vector2 moveInput;
+    private Dictionary<string, IAbility> abilities = new Dictionary<string, IAbility>();
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;
-        rb.useGravity = false;
+        Rigidbody = GetComponent<Rigidbody>();
+        Rigidbody.freezeRotation = true;
+        Rigidbody.useGravity = false;
+
+        inputEvents.OnMove.AddListener(HandleMoveInput);
+        inputEvents.OnCustomAction.AddListener(HandleCustomAction);
+
+        InitializeAbilities();
+    }
+
+    void OnDisable()
+    {
+        inputEvents.OnMove.RemoveListener(HandleMoveInput);
+        inputEvents.OnCustomAction.RemoveListener(HandleCustomAction);
+    }
+
+    void InitializeAbilities()
+    {
+        // Initialize and add abilities
+        abilities["Jump"] = new JumpAbility();
+        abilities["Dash"] = new DashAbility();
+
+        foreach (var ability in abilities.Values)
+        {
+            ability.Initialize(this);
+        }
+    }
+
+    void HandleMoveInput(Vector2 input)
+    {
+        moveInput = input;
+    }
+
+    void HandleCustomAction(string actionName, EnhancedInputComponent.InputContext context)
+    {
+        if (abilities.TryGetValue(actionName, out var ability))
+        {
+            ability.OnInputReceived(context);
+        }
     }
 
     void FixedUpdate()
     {
         ApplyFloatingForce();
         HandleMovement();
-        HandleJump();
+        ProcessAbilities();
         KeepUpright();
     }
 
-
-    public void SwitchInputStrategy(InputStrategySO newStrategy)
+    void ProcessAbilities()
     {
-        var inputHandler = GetComponent<CharacterInputHandler>();
-        if (inputHandler != null)
+        foreach (var ability in abilities.Values)
         {
-            inputHandler.SetInputStrategy(newStrategy);
+            ability.ProcessAbility(Time.fixedDeltaTime);
         }
     }
 
@@ -61,31 +113,32 @@ public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
         {
             float distanceToGround = hit.distance;
             float heightError = desiredHeight - distanceToGround;
-            float springForceAmount = heightError * springForce - rb.velocity.y * dampingForce;
+            float springForceAmount = heightError * springForce - Rigidbody.velocity.y * dampingForce;
             
-            rb.AddForce(Vector3.up * springForceAmount);
+            Rigidbody.AddForce(Vector3.up * springForceAmount);
             
-            // Apply force to object under character
             if (hit.rigidbody != null)
             {
                 hit.rigidbody.AddForceAtPosition(-Vector3.up * springForceAmount, hit.point);
             }
+
+            IsGrounded = distanceToGround <= desiredHeight + 0.1f;
+        }
+        else
+        {
+            IsGrounded = false;
         }
     }
 
     void HandleMovement()
     {
-        Vector2 input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        desiredMoveDirection = new Vector3(input.x, 0f, input.y).normalized;
+        DesiredMoveDirection = new Vector3(moveInput.x, 0f, moveInput.y).normalized;
         
-        // Adjust for camera angle if needed
-        // desiredMoveDirection = Quaternion.Euler(0, Camera.main.transform.eulerAngles.y, 0) * desiredMoveDirection;
-
-        Vector3 desiredVelocity = desiredMoveDirection * maxSpeed;
-        Vector3 velocityChange = desiredVelocity - rb.velocity;
+        Vector3 desiredVelocity = DesiredMoveDirection * maxSpeed;
+        Vector3 velocityChange = desiredVelocity - Rigidbody.velocity;
         velocityChange.y = 0f;
 
-        float directionDifference = Vector3.Angle(currentMoveDirection, desiredMoveDirection) / 180f;
+        float directionDifference = Vector3.Angle(currentMoveDirection, DesiredMoveDirection) / 180f;
         float accelerationMultiplier = 1f + (turnAccelerationMultiplier - 1f) * directionDifference;
 
         Vector3 accelerationForce = velocityChange * (acceleration * accelerationMultiplier);
@@ -96,58 +149,122 @@ public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
             accelerationForce = accelerationForce.normalized * maxForce;
         }
 
-        rb.AddForce(accelerationForce);
+        Rigidbody.AddForce(accelerationForce);
         
-        currentMoveDirection = rb.velocity.normalized;
-    }
-
-    void HandleJump()
-    {
-        if (IsGrounded())
-        {
-            isGrounded = true;
-            lastGroundedTime = Time.time;
-        }
-        else
-        {
-            isGrounded = false;
-        }
-
-        if (Input.GetButtonDown("Jump"))
-        {
-            lastJumpPressedTime = Time.time;
-        }
-
-        if (Time.time - lastGroundedTime <= coyoteTime && Time.time - lastJumpPressedTime <= jumpBufferTime)
-        {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            lastJumpPressedTime = 0f;
-        }
-
-        // Analog jump: apply downward force when button is released or at jump peak
-        if (!Input.GetButton("Jump") && rb.velocity.y > 0)
-        {
-            rb.AddForce(Vector3.down * downwardForce);
-        }
+        currentMoveDirection = Rigidbody.velocity.normalized;
     }
 
     void KeepUpright()
     {
-        Quaternion targetRotation = Quaternion.LookRotation(desiredMoveDirection, Vector3.up);
-        rb.MoveRotation(Quaternion.RotateTowards(rb.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime));
-    }
-
-    bool IsGrounded()
-    {
-        return Physics.Raycast(transform.position, Vector3.down, desiredHeight + 0.1f);
+        if (DesiredMoveDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(DesiredMoveDirection, Vector3.up);
+            Rigidbody.MoveRotation(Quaternion.RotateTowards(Rigidbody.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime));
+        }
     }
 
     void OnCollisionStay(Collision collision)
     {
-        // Reduce friction between character and world objects
         foreach (ContactPoint contact in collision.contacts)
         {
             Physics.IgnoreFriction(contact);
         }
+    }
+}
+
+// ジャンプ能力
+public class JumpAbility : IAbility
+{
+    private AdvancedPhysicsBasedCharacterController controller;
+    private float jumpForce = 5f;
+    private float downwardForce = 20f;
+    private float coyoteTime = 0.1f;
+    private float jumpBufferTime = 0.1f;
+    private float lastGroundedTime;
+    private float lastJumpPressedTime;
+    private bool isJumpPressed;
+
+    public void Initialize(AdvancedPhysicsBasedCharacterController controller)
+    {
+        this.controller = controller;
+    }
+
+    public void ProcessAbility(float deltaTime)
+    {
+        if (controller.IsGrounded)
+        {
+            lastGroundedTime = Time.time;
+        }
+
+        if (Time.time - lastGroundedTime <= coyoteTime && Time.time - lastJumpPressedTime <= jumpBufferTime)
+        {
+            PerformJump();
+        }
+
+        if (!isJumpPressed && controller.Rigidbody.velocity.y > 0)
+        {
+            controller.Rigidbody.AddForce(Vector3.down * downwardForce);
+        }
+    }
+
+    public void OnInputReceived(EnhancedInputComponent.InputContext context)
+    {
+        if (context.IsPressed)
+        {
+            lastJumpPressedTime = Time.time;
+        }
+        isJumpPressed = context.IsPressed;
+    }
+
+    private void PerformJump()
+    {
+        controller.Rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        lastJumpPressedTime = 0f;
+    }
+}
+
+// ダッシュ能力
+public class DashAbility : IAbility
+{
+    private AdvancedPhysicsBasedCharacterController controller;
+    private float dashForce = 10f;
+    private float dashDuration = 0.2f;
+    private float dashCooldown = 1f;
+    private float lastDashTime;
+    private bool isDashing;
+
+    public void Initialize(AdvancedPhysicsBasedCharacterController controller)
+    {
+        this.controller = controller;
+    }
+
+    public void ProcessAbility(float deltaTime)
+    {
+        if (isDashing)
+        {
+            if (Time.time - lastDashTime > dashDuration)
+            {
+                isDashing = false;
+            }
+        }
+    }
+
+    public void OnInputReceived(EnhancedInputComponent.InputContext context)
+    {
+        if (context.IsPressed && Time.time - lastDashTime > dashCooldown)
+        {
+            PerformDash();
+        }
+    }
+
+    private void PerformDash()
+    {
+        Vector3 dashDirection = controller.DesiredMoveDirection != Vector3.zero 
+            ? controller.DesiredMoveDirection 
+            : controller.transform.forward;
+        
+        controller.Rigidbody.AddForce(dashDirection * dashForce, ForceMode.Impulse);
+        isDashing = true;
+        lastDashTime = Time.time;
     }
 }
