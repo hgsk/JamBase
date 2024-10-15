@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CharacterController : MonoBehaviour
+public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
 {
     [Header("Movement")]
     public float maxSpeed = 5f;
