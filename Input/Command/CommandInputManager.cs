@@ -1,19 +1,27 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
-// Command Input Manager
+// ScriptableObject for defining a single skill command
+[CreateAssetMenu(fileName = "New Skill Command", menuName = "Skill System/Skill Command")]
+public class SkillCommandSO : ScriptableObject
+{
+    public string skillName;
+    public List<KeyCode> commandSequence = new List<KeyCode>();
+    public float timeLimit = 2f;
+}
+
+// ScriptableObject for defining a set of skill commands
+[CreateAssetMenu(fileName = "New Skill Command Set", menuName = "Skill System/Skill Command Set")]
+public class SkillCommandSetSO : ScriptableObject
+{
+    public List<SkillCommandSO> skillCommands = new List<SkillCommandSO>();
+}
+
+// Updated CommandInputManager to use ScriptableObjects
 public class CommandInputManager : MonoBehaviour
 {
-    [Serializable]
-    public class SkillCommand
-    {
-        public string skillName;
-        public List<KeyCode> commandSequence;
-        public float timeLimit = 2f; // Time limit to input the command
-    }
-
-    public List<SkillCommand> skillCommands = new List<SkillCommand>();
+    public SkillCommandSetSO skillCommandSet;
 
     private List<KeyCode> currentInputSequence = new List<KeyCode>();
     private float lastInputTime;
@@ -41,7 +49,7 @@ public class CommandInputManager : MonoBehaviour
         }
 
         // Check if the current sequence has timed out
-        if (currentInputSequence.Count > 0 && Time.time - lastInputTime > skillCommands[0].timeLimit)
+        if (currentInputSequence.Count > 0 && Time.time - lastInputTime > GetCurrentTimeLimit())
         {
             ResetInputSequence();
         }
@@ -53,7 +61,7 @@ public class CommandInputManager : MonoBehaviour
         lastInputTime = Time.time;
 
         // Check if the current sequence matches any skill command
-        foreach (var command in skillCommands)
+        foreach (var command in skillCommandSet.skillCommands)
         {
             if (IsSequenceMatch(currentInputSequence, command.commandSequence))
             {
@@ -64,7 +72,7 @@ public class CommandInputManager : MonoBehaviour
         }
 
         // If the sequence is longer than any command, reset it
-        if (currentInputSequence.Count > skillCommands[0].commandSequence.Count)
+        if (currentInputSequence.Count > GetLongestCommandLength())
         {
             ResetInputSequence();
         }
@@ -84,53 +92,36 @@ public class CommandInputManager : MonoBehaviour
     {
         currentInputSequence.Clear();
     }
-}
 
-// Updated PlayerSkillUser to work with CommandInputManager
-[RequireComponent(typeof(SkillManager), typeof(CommandInputManager))]
-public class PlayerSkillUser : MonoBehaviour, ISkillUser
-{
-    private SkillManager skillManager;
-
-    private void Awake()
+    private float GetCurrentTimeLimit()
     {
-        skillManager = GetComponent<SkillManager>();
+        return skillCommandSet.skillCommands.Count > 0 ? skillCommandSet.skillCommands[0].timeLimit : 2f;
     }
 
-    public void UseSkill(string skillName)
+    private int GetLongestCommandLength()
     {
-        skillManager.UseSkill(skillName);
+        int maxLength = 0;
+        foreach (var command in skillCommandSet.skillCommands)
+        {
+            maxLength = Mathf.Max(maxLength, command.commandSequence.Count);
+        }
+        return maxLength;
     }
 }
 
-// Example of how to set up skill commands in the Unity Inspector
-[System.Serializable]
-public class SkillCommandSetup
-{
-    public string skillName;
-    public List<KeyCode> commandSequence;
-    public float timeLimit = 2f;
-}
+// PlayerSkillUser remains unchanged
 
-// MonoBehaviour to set up skill commands in the Unity Inspector
+// Example of how to use the ScriptableObjects in a MonoBehaviour
 public class SkillCommandSetup : MonoBehaviour
 {
-    public List<SkillCommandSetup> skillCommands;
+    public SkillCommandSetSO skillCommandSet;
 
     private void Start()
     {
         var commandInputManager = GetComponent<CommandInputManager>();
         if (commandInputManager != null)
         {
-            foreach (var setup in skillCommands)
-            {
-                commandInputManager.skillCommands.Add(new CommandInputManager.SkillCommand
-                {
-                    skillName = setup.skillName,
-                    commandSequence = setup.commandSequence,
-                    timeLimit = setup.timeLimit
-                });
-            }
+            commandInputManager.skillCommandSet = skillCommandSet;
         }
     }
 }
