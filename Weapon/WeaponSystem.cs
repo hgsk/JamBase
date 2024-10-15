@@ -1,5 +1,22 @@
 using UnityEngine;
 using System.Collections;
+/*
+使用例：
+
+1. 基本的な武器統計の作成：
+   - "Create > Weapons > Weapon Stats" を選択して新しい `WeaponStatsSO` アセットを作成。
+   - 武器の基本的な統計情報（発射速度、マガジンサイズ、リロード時間など）を設定。
+
+2. 武器データの作成：
+   - "Create > Weapons > Weapon Data" （または特殊な武器タイプ）を選択して新しい `WeaponDataSO` アセットを作成。
+   - 作成した `WeaponStatsSO` を `baseStats` にアサイン。
+   - 必要に応じて `overrideStats` を作成してアサインし、特定の統計値を上書き。
+
+3. 武器バリエーションの作成：
+   - 既存の `WeaponDataSO` を複製。
+   - 新しい `overrideStats` を作成し、変更したい統計値のみを設定してアサイン。
+*/
+
 
 // 武器の基本情報
 [CreateAssetMenu(fileName = "New Weapon Stats", menuName = "Weapons/Weapon Stats")]
