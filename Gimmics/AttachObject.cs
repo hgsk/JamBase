@@ -1,3 +1,9 @@
+/*
+1. くっつけたいオブジェクトにこのスクリプトをアタッチします。
+2. 同じオブジェクトにRigidbodyコンポーネントがあることを確認します。
+3. Inspectorで`targetTag`と`attachForce`を適切に設定します。
+4. くっつく対象となるオブジェクトに、スクリプトで指定したタグを設定し、Rigidbodyコンポーネントを追加します。
+*/
 using UnityEngine;
 
 public class AttachObject : MonoBehaviour
