@@ -77,14 +77,6 @@ public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
         }
     }
 
-    public void SwitchInputStrategy(InputStrategySO newStrategy)
-    {
-        var inputHandler = GetComponent<CharacterInputHandler>();
-        if (inputHandler != null)
-        {
-            inputHandler.SetInputStrategy(newStrategy);
-        }
-    }
 
     public void SwitchInputStrategy(InputStrategySO newStrategy)
     {
