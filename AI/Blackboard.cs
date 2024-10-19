@@ -16,11 +16,10 @@ Blackboard（黒板）システムは、人工知能と認知科学の分野で�
 */
 
 using UnityEngine;
-using System.Collections.Generic;
-using System;
+using UnityEditor;
 
 // Blackboardに格納されるデータの基本クラス
-[System.Serializable]
+[Serializable]
 public abstract class BlackboardData
 {
     public float timestamp;
@@ -32,7 +31,7 @@ public abstract class BlackboardData
 }
 
 // 知覚データを表すクラス
-[System.Serializable]
+[Serializable]
 public class PerceptionData : BlackboardData
 {
     public GameObject target;
@@ -208,7 +207,10 @@ public class MemorySystem : MonoBehaviour
                     float timeSincePerception = Time.time - perceptionData.timestamp;
                     if (timeSincePerception > memoryDuration)
                     {
-        ...
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -259,27 +261,3 @@ public class BehaviorSystem : MonoBehaviour
         }
     }
 }
-
-// カスタムエディタ（オプション）
-#if UNITY_EDITOR
-using UnityEditor;
-
-[CustomEditor(typeof(AIManager))]
-public class AIManagerEditor : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-
-        AIManager aiManager = (AIManager)target;
-        if (aiManager.settings != null)
-        {
-            EditorGUILayout.Space();
-            if (GUILayout.Button("Open AI Settings"))
-            {
-                Selection.activeObject = aiManager.settings;
-            }
-        }
-    }
-}
-#endif

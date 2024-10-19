@@ -103,7 +103,7 @@ public class CharacterInputHandler : MonoBehaviour
         enhancedInput.ClearAllBindings();
         foreach (var action in strategy.actions)
         {
-            var inputAction = new EnhancedInputComponent.InputAction
+            var inputAction = new EnhancedInputComponent.EnhancedInputAction
             {
                 Name = action.actionName,
                 ActionReference = enhancedInput.GetActionReference(action.inputActionReference),
@@ -113,7 +113,7 @@ public class CharacterInputHandler : MonoBehaviour
             };
             enhancedInput.BindAction(action.actionName, context => OnInputAction(action.actionName, context));
         }
-        enhancedInput.SetupActions(strategy.actions.ConvertAll(a => new EnhancedInputComponent.InputAction
+        enhancedInput.SetupActions(strategy.actions.ConvertAll(a => new EnhancedInputComponent.EnhancedInputAction
         {
             Name = a.actionName,
             ActionReference = enhancedInput.GetActionReference(a.inputActionReference),
@@ -146,7 +146,7 @@ public class InputTriggerAdapter : EnhancedInputComponent.InputTrigger
         this.triggerSO = triggerSO;
     }
 
-    public override bool Evaluate(EnhancedInputComponent.InputAction action, EnhancedInputComponent.InputContext context)
+    public override bool Evaluate(EnhancedInputComponent.EnhancedInputAction action, EnhancedInputComponent.InputContext context)
     {
         return triggerSO.Evaluate(context);
     }

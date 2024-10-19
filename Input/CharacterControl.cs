@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 // Base interface for character control, whether AI or player-controlled
 public interface ICharacterControl
@@ -48,31 +49,38 @@ public class AIControl : MonoBehaviour, ICharacterControl
 public class PlayerControl : MonoBehaviour, ICharacterControl
 {
     private CharacterAction actionLayer;
+    private PlayerInput playerInput;
+    private InputAction moveAction;
+    private InputAction jumpAction;
+    private InputAction attackAction;
 
     private void Awake()
     {
         actionLayer = GetComponent<CharacterAction>();
+        playerInput = GetComponent<PlayerInput>();
+        moveAction = playerInput.actions["Move"];
+        jumpAction = playerInput.actions["Jump"];
+        attackAction = playerInput.actions["Attack"];
     }
 
     public void UpdateControl()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (jumpAction.triggered)
         {
             actionLayer.TryJump();
         }
 
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        if (horizontal != 0 || vertical != 0)
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
+        if (moveInput != Vector2.zero)
         {
-            actionLayer.Move(new Vector2(horizontal, vertical));
+            actionLayer.Move(moveInput);
         }
         else
         {
             actionLayer.StopMoving();
         }
 
-        if (Input.GetButtonDown("Fire1"))
+        if (attackAction.triggered)
         {
             actionLayer.TryAttack();
         }
@@ -166,6 +174,29 @@ public class CharacterAction : MonoBehaviour
             WeaponLayer.Attack();
             BodyLayer.PlayAttackAnimation();
         }
+    }
+}
+
+public class CharacterHead : MonoBehaviour
+{
+    public void LookInDirection(Vector2 direction)
+    {
+        float angle = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, angle, 0);
+    }
+}
+
+public class CharacterWeapon : MonoBehaviour
+{
+    public bool CanAttack()
+    {
+        // Implement attack cooldown logic
+        return true;
+    }
+
+    public void Attack()
+    {
+        // Implement attack logic
     }
 }
 

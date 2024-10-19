@@ -17,9 +17,9 @@ public static class DungeonGenerator
         public static TileType[,] Generate(int width, int height, int steps)
         {
             var map = new TileType[width, height];
-            for (int x = 0; x < width; x++)
-                for (int y = 0; y < height; y++)
-                    map[x, y] = TileType.Wall;
+            for (int innerX = 0; innerX < width; innerX++)
+                for (int innerY = 0; innerY < height; innerY++)
+                    map[innerX, innerY] = TileType.Wall;
 
             int x = width / 2;
             int y = height / 2;

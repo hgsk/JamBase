@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Playables;
-using System.Collections.Generic;
+using UnityEngine.Timeline;
 
 [System.Serializable]
 public class SkillEvent : UnityEvent<string> { }
@@ -12,41 +12,9 @@ public class Skill : ScriptableObject
     public string skillName;
     public float cooldownDuration;
     public AnimationClip skillAnimation;
-    public TimelineAsset skillTimeline;
+    //public TimelineAsset skillTimeline;
     public AudioClip skillSound;
-}
-
-public class SkillManager : MonoBehaviour
-{
-    public SkillEvent OnSkillUsed = new SkillEvent();
-    public Dictionary<string, Skill> skills = new Dictionary<string, Skill>();
-    private Dictionary<string, float> cooldowns = new Dictionary<string, float>();
-
-    public void AddSkill(Skill skill)
-    {
-        skills[skill.skillName] = skill;
-        cooldowns[skill.skillName] = 0f;
-    }
-
-    public void UseSkill(string skillName)
-    {
-        if (skills.TryGetValue(skillName, out Skill skill) && cooldowns[skillName] <= 0)
-        {
-            OnSkillUsed.Invoke(skillName);
-            cooldowns[skillName] = skill.cooldownDuration;
-        }
-    }
-
-    private void Update()
-    {
-        foreach (var skill in cooldowns.Keys.ToArray())
-        {
-            if (cooldowns[skill] > 0)
-            {
-                cooldowns[skill] -= Time.deltaTime;
-            }
-        }
-    }
+    internal object skillTimeline;
 }
 
 [RequireComponent(typeof(Animator), typeof(PlayableDirector))]
@@ -71,25 +39,13 @@ public class CharacterAnimationController : MonoBehaviour
         director.playableAsset = timeline;
         director.Play();
     }
-}
 
-public class SoundManager : MonoBehaviour
-{
-    private AudioSource audioSource;
-
-    private void Awake()
+    internal void PlaySkillTimeline(object skillTimeline)
     {
-        audioSource = gameObject.AddComponent<AudioSource>();
-    }
-
-    public void PlaySound(AudioClip clip)
-    {
-        if (clip != null)
-        {
-            audioSource.PlayOneShot(clip);
-        }
+        throw new NotImplementedException();
     }
 }
+
 
 public class SkillViewController : MonoBehaviour
 {
@@ -117,9 +73,15 @@ public class SkillViewController : MonoBehaviour
         skillManager.OnSkillUsed.AddListener(HandleSkillUsed);
     }
 
+    private void HandleSkillUsed()
+    {
+        throw new NotImplementedException();
+    }
+
     private void HandleSkillUsed(string skillName)
     {
-        if (skillManager.skills.TryGetValue(skillName, out Skill skill))
+        Skill skill = (Skill)skillManager.skills.FirstOrDefault(s => s.Name == skillName);
+        if (skill != null)
         {
             if (skill.skillAnimation != null)
             {
@@ -171,8 +133,8 @@ public class SkillEffectPlayableBehaviour : PlayableBehaviour
 }
 
 // Custom TrackAsset for Timeline
-[TrackClipType(typeof(SkillEffectPlayableAsset))]
-public class SkillEffectTrack : TrackAsset { }
+//[TrackClipType(typeof(SkillEffectPlayableAsset))]
+public class SkillEffectTrack {}// TrackAsset { }
 
 // Custom PlayableAsset for Timeline
 public class SkillEffectPlayableAsset : PlayableAsset

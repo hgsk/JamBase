@@ -1,13 +1,14 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 // ScriptableObject for defining a single skill command
 [CreateAssetMenu(fileName = "New Skill Command", menuName = "Skill System/Skill Command")]
 public class SkillCommandSO : ScriptableObject
 {
     public string skillName;
-    public List<KeyCode> commandSequence = new List<KeyCode>();
+    public List<string> commandSequence = new List<string>();
     public float timeLimit = 2f;
 }
 
@@ -21,15 +22,19 @@ public class SkillCommandSetSO : ScriptableObject
 // Updated CommandInputManager to use ScriptableObjects
 public class CommandInputManager : MonoBehaviour
 {
+    List<InputAction> inputActions = new List<InputAction>();
     public SkillCommandSetSO skillCommandSet;
 
-    private List<KeyCode> currentInputSequence = new List<KeyCode>();
-    private float lastInputTime;
+    public List<string> currentInputSequence = new List<string>();
+    public float lastInputTime;
 
     private PlayerSkillUser skillUser;
 
-    private void Start()
+    public void Start()
     {
+        inputActions.Add(new InputAction("Skill", InputActionType.Button, "<Keyboard>/space"));
+        inputActions.Add(new InputAction("Skill", InputActionType.Button, "<Keyboard>/Y"));
+        inputActions.Add(new InputAction("Skill", InputActionType.Button, "<Keyboard>/A"));
         skillUser = GetComponent<PlayerSkillUser>();
         if (skillUser == null)
         {
@@ -37,16 +42,15 @@ public class CommandInputManager : MonoBehaviour
         }
     }
 
-    private void Update()
+    public void Update()
     {
         // Check for key inputs
-        foreach (KeyCode key in Enum.GetValues(typeof(KeyCode)))
-        {
-            if (Input.GetKeyDown(key))
+        inputActions.ForEach(action => {
+            if (action.triggered)
             {
-                HandleKeyInput(key);
+                HandleKeyInput(action.name);
             }
-        }
+        });
 
         // Check if the current sequence has timed out
         if (currentInputSequence.Count > 0 && Time.time - lastInputTime > GetCurrentTimeLimit())
@@ -55,7 +59,7 @@ public class CommandInputManager : MonoBehaviour
         }
     }
 
-    private void HandleKeyInput(KeyCode key)
+    private void HandleKeyInput(string key)
     {
         currentInputSequence.Add(key);
         lastInputTime = Time.time;
@@ -78,7 +82,7 @@ public class CommandInputManager : MonoBehaviour
         }
     }
 
-    private bool IsSequenceMatch(List<KeyCode> input, List<KeyCode> command)
+    private bool IsSequenceMatch(List<string> input, List<string> command)
     {
         if (input.Count != command.Count) return false;
         for (int i = 0; i < input.Count; i++)
@@ -93,7 +97,7 @@ public class CommandInputManager : MonoBehaviour
         currentInputSequence.Clear();
     }
 
-    private float GetCurrentTimeLimit()
+    internal float GetCurrentTimeLimit()
     {
         return skillCommandSet.skillCommands.Count > 0 ? skillCommandSet.skillCommands[0].timeLimit : 2f;
     }

@@ -52,13 +52,6 @@ public class SoundManager : MonoBehaviour, ISkillObserver
     private Dictionary<string, SoundEffectSO> soundEffects = new Dictionary<string, SoundEffectSO>();
     private Dictionary<string, MusicTrackSO> musicTracks = new Dictionary<string, MusicTrackSO>();
 
-    private void Awake()
-    {
-        musicSource = gameObject.AddComponent<AudioSource>();
-        sfxSource = gameObject.AddComponent<AudioSource>();
-        
-        LoadSoundConfiguration();
-    }
 
     public void LoadSoundConfiguration()
     {
@@ -96,6 +89,16 @@ public class SoundManager : MonoBehaviour, ISkillObserver
     {
         // Assuming skill names match sound effect names, or you have a mapping
         PlaySoundEffect(skillName);
+    }
+
+    public void OnSkillUsed(string skillName)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal void PlaySound(AudioClip skillSound)
+    {
+        throw new NotImplementedException();
     }
 }
 
@@ -149,6 +152,20 @@ public class EffectManager : MonoBehaviour, ISkillObserver
 
             // Sound is now handled by SoundManager through the observer pattern
         }
+    }
+
+    public void OnSkillUsed(string skillName)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class ObservableSkills : MonoBehaviour
+{
+    private List<ISkillObserver> observers = new List<ISkillObserver>();
+    public void AddObserver(ISkillObserver observer) {
+        // Add observer to the list
+        observers.Add(observer);
     }
 }
 

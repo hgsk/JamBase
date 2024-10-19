@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Playables;
 
 [System.Serializable]
 public class CharacterActionEvent : UnityEvent<string> { }
@@ -20,7 +21,7 @@ public class CharacterEventDispatcher : MonoBehaviour
 
     private void Update()
     {
-        if (controller.IsGrounded())
+        if (controller.IsGrounded)
         {
             if (!wasGrounded)
             {
@@ -120,7 +121,6 @@ public class UnityEventAudioController : MonoBehaviour
     }
 }
 
-using UnityEngine.Playables;
 
 public class UnityEventTimelineController : MonoBehaviour
 {

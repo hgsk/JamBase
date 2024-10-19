@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UnityVersion>2023.2.20f1</UnityVersion>
+  </PropertyGroup>
+
+
+<ItemGroup>
+  <Reference Include="UnityEngine.CoreModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.CoreModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.Physics">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.PhysicsModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.AudioModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.AudioModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.PlayablesModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.PlayablesModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.DirectorModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.DirectorModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.ParticleSystemModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.ParticleSystemModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.AIIModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.AIModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.AnimationModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.AnimationModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.InputModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.InputModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEditor.CoreModule">
+    <HintPath>.\Managed\UnityEngine\UnityEditor.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEditor.UIModule">
+    <HintPath>.\Managed\UnityEngine\UnityEditor.UI.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEditor.IMGUIModule">
+    <HintPath>.\Managed\UnityEngine\UnityEngine.IMGUIModule.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.InputSystem">
+    <HintPath>.\Managed\Unity.InputSystem.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.Timeline">
+    <HintPath>.\Managed\Unity.Timeline.dll</HintPath>
+  </Reference>
+  <Reference Include="UnityEngine.UI">
+    <HintPath>.\Managed\UnityEngine.UI.dll</HintPath>
+  </Reference>
+  <Reference Include="TMPro">
+    <HintPath>.\Managed\Unity.TextMeshPro.dll</HintPath>
+  </Reference>
+</ItemGroup>
+<PropertyGroup>
+   <LangVersion>preview</LangVersion>
+</PropertyGroup>
+
+</Project>

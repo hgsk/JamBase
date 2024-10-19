@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.Pool;
 
 // プロジェクタイルの共有データ
 public class ProjectileFlyweight
@@ -131,7 +131,7 @@ public class ProjectileManager : MonoBehaviour
     {
         foreach (var projectileInfo in projectileTypes)
         {
-            projectilePools[projectileInfo.projectileName] = new ObjectPool<ProjectileVisual>(projectileInfo.projectilePrefab.GetComponent<ProjectileVisual>());
+            projectilePools[projectileInfo.projectileName] = new ObjectPool<ProjectileVisual>(projectileInfo.projectilePrefab.GetComponent<ProjectileVisual>);
         }
     }
 
@@ -166,7 +166,7 @@ public class ProjectileManager : MonoBehaviour
 
     private void DeactivateProjectile(ProjectileInstance projectile, int index)
     {
-        projectilePools[projectile.Info.projectileName].ReturnToPool(projectile.visual);
+        projectilePools[projectile.Info.projectileName].Release(projectile.visual);
         activeProjectiles.RemoveAt(index);
     }
 
@@ -183,30 +183,4 @@ public abstract class ProjectileBehaviorSO : ScriptableObject
     public abstract void Initialize(ProjectileInstance projectile);
     public abstract void Update(ProjectileInstance projectile);
     public abstract void OnCollision(ProjectileInstance projectile, GameObject target);
-}
-
-
-[CreateAssetMenu(fileName = "Standard Projectile Behavior", menuName = "Projectiles/Behaviors/Standard")]
-public class StandardProjectileBehaviorSO : ProjectileBehaviorSO
-{
-    public override void Initialize(ProjectileInstance projectile) { }
-
-    public override void Update(ProjectileInstance projectile)
-    {
-        projectile.state.position += projectile.state.direction * projectile.Info.speed * Time.deltaTime;
-    }
-
-    public override void OnCollision(ProjectileInstance projectile, GameObject target)
-    {
-        ApplyDamage(target, projectile.Info.baseDamage);
-    }
-
-    protected void ApplyDamage(GameObject target, float damage)
-    {
-        var damageable = target.GetComponent<IDamageable>();
-        if (damageable != null)
-        {
-            damageable.TakeDamage(damage);
-        }
-    }
 }

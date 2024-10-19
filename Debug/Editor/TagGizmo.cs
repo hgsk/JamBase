@@ -25,6 +25,7 @@ public class TagGizmo
         {
             if (!string.IsNullOrEmpty(obj.tag) && obj.tag != "Untagged")
             {
+                // Draw tag label
                 Handles.Label(obj.transform.position, obj.tag);
             }
         }

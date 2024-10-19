@@ -1,12 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System;
-using System.Collections.Generic;
 
 public class EnhancedInputComponent : MonoBehaviour
 {
     [Serializable]
-    public class InputAction
+    public class EnhancedInputAction
     {
         public string Name;
         public InputActionReference ActionReference;
@@ -16,7 +14,7 @@ public class EnhancedInputComponent : MonoBehaviour
     [Serializable]
     public abstract class InputTrigger
     {
-        public abstract bool Evaluate(InputAction action, InputContext context);
+        public abstract bool Evaluate(EnhancedInputAction action, InputContext context);
     }
 
     [Serializable]
@@ -28,7 +26,7 @@ public class EnhancedInputComponent : MonoBehaviour
         public bool IsPressed;
     }
 
-    [SerializeField] private List<InputAction> actions = new List<InputAction>();
+    [SerializeField] private List<EnhancedInputAction> actions = new List<EnhancedInputAction>();
 
     private Dictionary<string, List<Action<InputContext>>> callbacks = new Dictionary<string, List<Action<InputContext>>>();
 
@@ -46,12 +44,12 @@ public class EnhancedInputComponent : MonoBehaviour
         }
     }
 
-    private void OnInputPerformed(InputAction action, InputSystem.InputAction.CallbackContext ctx)
+    private void OnInputPerformed(EnhancedInputAction action, InputAction.CallbackContext ctx)
     {
         var inputContext = new InputContext
         {
             Time = Time.time,
-            Duration = ctx.duration,
+            Duration = (float) ctx.duration,
             Value = ctx.ReadValue<Vector2>(),
             IsPressed = ctx.performed
         };
@@ -59,12 +57,12 @@ public class EnhancedInputComponent : MonoBehaviour
         EvaluateTriggers(action, inputContext);
     }
 
-    private void OnInputCanceled(InputAction action, InputSystem.InputAction.CallbackContext ctx)
+    private void OnInputCanceled(EnhancedInputAction action, InputAction.CallbackContext ctx)
     {
         var inputContext = new InputContext
         {
             Time = Time.time,
-            Duration = ctx.duration,
+            Duration = (float) ctx.duration,
             Value = Vector2.zero,
             IsPressed = false
         };
@@ -72,7 +70,7 @@ public class EnhancedInputComponent : MonoBehaviour
         EvaluateTriggers(action, inputContext);
     }
 
-    private void EvaluateTriggers(InputAction action, InputContext context)
+    private void EvaluateTriggers(EnhancedInputAction action, InputContext context)
     {
         foreach (var trigger in action.Triggers)
         {
@@ -110,12 +108,27 @@ public class EnhancedInputComponent : MonoBehaviour
             callbacks[actionName].Remove(callback);
         }
     }
+
+    internal void SetupActions(List<EnhancedInputAction> enhancedInputActions)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal InputActionReference GetActionReference(string inputActionReference)
+    {
+        throw new NotImplementedException();
+    }
+
+    internal void ClearAllBindings()
+    {
+        throw new NotImplementedException();
+    }
 }
 
 // Example Triggers
 public class TapTrigger : EnhancedInputComponent.InputTrigger
 {
-    public override bool Evaluate(EnhancedInputComponent.InputAction action, EnhancedInputComponent.InputContext context)
+    public override bool Evaluate(EnhancedInputComponent.EnhancedInputAction action, EnhancedInputComponent.InputContext context)
     {
         return context.IsPressed && context.Duration < 0.2f;
     }
@@ -125,7 +138,7 @@ public class HoldTrigger : EnhancedInputComponent.InputTrigger
 {
     public float HoldDuration = 0.5f;
 
-    public override bool Evaluate(EnhancedInputComponent.InputAction action, EnhancedInputComponent.InputContext context)
+    public override bool Evaluate(EnhancedInputComponent.EnhancedInputAction action, EnhancedInputComponent.InputContext context)
     {
         return context.IsPressed && context.Duration >= HoldDuration;
     }
@@ -138,7 +151,7 @@ public class MultiTapTrigger : EnhancedInputComponent.InputTrigger
 
     private List<float> tapTimes = new List<float>();
 
-    public override bool Evaluate(EnhancedInputComponent.InputAction action, EnhancedInputComponent.InputContext context)
+    public override bool Evaluate(EnhancedInputComponent.EnhancedInputAction action, EnhancedInputComponent.InputContext context)
     {
         if (context.IsPressed)
         {
@@ -172,7 +185,7 @@ public class ComboTrigger : EnhancedInputComponent.InputTrigger
     private List<float> triggerTimes = new List<float>();
     private int currentIndex = 0;
 
-    public override bool Evaluate(EnhancedInputComponent.InputAction action, EnhancedInputComponent.InputContext context)
+    public override bool Evaluate(EnhancedInputComponent.EnhancedInputAction action, EnhancedInputComponent.InputContext context)
     {
         if (currentIndex < Sequence.Count && Sequence[currentIndex].Evaluate(action, context))
         {

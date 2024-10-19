@@ -66,7 +66,7 @@ public class SkillUIManager : MonoBehaviour
         }
     }
 
-    public void ShowCommandFeedback(List<KeyCode> currentSequence, float timeRemaining)
+    public void ShowCommandFeedback(List<string> currentSequence, float timeRemaining)
     {
         if (commandFeedback != null)
         {
@@ -111,7 +111,7 @@ public class CommandFeedbackController : MonoBehaviour
     public TextMeshProUGUI sequenceText;
     public Image timerBar;
 
-    public void UpdateFeedback(List<KeyCode> currentSequence, float timeRemaining)
+    public void UpdateFeedback(List<string> currentSequence, float timeRemaining)
     {
         sequenceText.text = string.Join(" ", currentSequence);
         timerBar.fillAmount = timeRemaining;
@@ -123,13 +123,13 @@ public class CommandInputManagerWithUI : CommandInputManager
 {
     private SkillUIManager uiManager;
 
-    protected override void Start()
+    void Start()
     {
         base.Start();
         uiManager = GetComponent<SkillUIManager>();
     }
 
-    protected override void Update()
+    void Update()
     {
         base.Update();
         UpdateUI();

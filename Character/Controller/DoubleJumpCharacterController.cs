@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DoubleJumpCharacterController : AdvancedPhysicsBasedCharacterController
 {
+    InputAction jumpAction;
     [Header("Double Jump")]
     public float doubleJumpForce = 4f; // Usually slightly lower than the initial jump
     public float doubleJumpCooldown = 0.1f; // Small cooldown to prevent accidental double jumps
@@ -15,19 +17,19 @@ public class DoubleJumpCharacterController : AdvancedPhysicsBasedCharacterContro
     {
         base.HandleJump(); // Call the original HandleJump method
 
-        if (IsGrounded())
+        if (IsGrounded)
         {
             canDoubleJump = false;
             hasDoubleJumped = false;
         }
 
-        if (Input.GetButtonDown("Jump"))
+        if (jumpAction.triggered)
         {
-            if (!IsGrounded() && canDoubleJump && !hasDoubleJumped && Time.time - lastJumpTime > doubleJumpCooldown)
+            if (!IsGrounded && canDoubleJump && !hasDoubleJumped && Time.time - lastJumpTime > doubleJumpCooldown)
             {
                 PerformDoubleJump();
             }
-            else if (IsGrounded())
+            else if (IsGrounded)
             {
                 canDoubleJump = true;
                 lastJumpTime = Time.time;

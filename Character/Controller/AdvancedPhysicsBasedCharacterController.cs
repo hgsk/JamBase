@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using System.Collections.Generic;
 
 // 能力のインターフェース
 public interface IAbility
@@ -47,6 +46,7 @@ public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
     private Vector2 moveInput;
     private Dictionary<string, IAbility> abilities = new Dictionary<string, IAbility>();
 
+    public void HandleJump() {}
     void Start()
     {
         Rigidbody = GetComponent<Rigidbody>();
@@ -188,7 +188,7 @@ public class AdvancedPhysicsBasedCharacterController : MonoBehaviour
     {
         foreach (ContactPoint contact in collision.contacts)
         {
-            Physics.IgnoreFriction(contact);
+            // Physics.IgnoreFriction(contact);
         }
     }
 }

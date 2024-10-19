@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class MinesweeperState : IGameState
 {
     public bool[,] Mines { get; }

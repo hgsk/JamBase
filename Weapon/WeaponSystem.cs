@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using Random = UnityEngine.Random;
+using UnityEngine.InputSystem;
 /*
 使用例：
 
@@ -124,11 +126,14 @@ public class WeaponSystem : MonoBehaviour
     private float lastFireTime;
     private int currentAmmo;
     private bool isReloading = false;
-
+    private InputAction fireAction;
+    private InputAction reloadAction;
     private AudioSource audioSource;
 
     private void Start()
     {
+        fireAction = new InputAction(type: InputActionType.Button, binding: "<Mouse>/leftButton");
+        reloadAction = new InputAction(type: InputActionType.Button, binding: "<Mouse>/RightButton");
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
@@ -146,16 +151,16 @@ public class WeaponSystem : MonoBehaviour
         if (currentWeapon == null) return;
 
         WeaponStatsSO stats = currentWeapon.GetStats();
-        if (stats.isAutomatic && Input.GetButton("Fire1"))
+        if (stats.isAutomatic && fireAction.triggered)
         {
             TryFire();
         }
-        else if (Input.GetButtonDown("Fire1"))
+        else if (fireAction.triggered)
         {
             TryFire();
         }
 
-        if (Input.GetButtonDown("Reload"))
+        if (reloadAction.triggered)
         {
             StartReload();
         }
@@ -226,12 +231,14 @@ public class WeaponSystem : MonoBehaviour
 // 武器の切り替えを管理するコンポーネント（変更なし）
 public class WeaponSwitcher : MonoBehaviour
 {
+    private InputAction switchWeaponAction;
     public WeaponSystem weaponSystem;
     public WeaponDataSO[] availableWeapons;
     private int currentWeaponIndex = 0;
 
     private void Start()
     {
+        switchWeaponAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/tab");
         if (availableWeapons.Length > 0)
         {
             weaponSystem.EquipWeapon(availableWeapons[currentWeaponIndex]);
@@ -240,7 +247,7 @@ public class WeaponSwitcher : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetButtonDown("SwitchWeapon"))
+        if (switchWeaponAction.triggered)
         {
             SwitchToNextWeapon();
         }

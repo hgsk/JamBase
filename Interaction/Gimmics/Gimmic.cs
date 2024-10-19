@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 // 破壊可能な壁
 public class DestructibleWall : BaseGimmick, IInteractableGimmick
@@ -23,6 +24,11 @@ public class DestructibleWall : BaseGimmick, IInteractableGimmick
             Destroy(gameObject);
         }
     }
+}
+
+internal interface IDamageDealer
+{
+    float DamageAmount { get; set; }
 }
 
 // スイング可能な綱
@@ -453,7 +459,7 @@ public class GravityReverser : BaseGimmick, IAreaGimmick, ITimedGimmick
         StartCoroutine(TimerCoroutine());
     }
 
-    private System.Collections.IEnumerator TimerCoroutine()
+    private IEnumerator TimerCoroutine()
     {
         while (timeLeft > 0)
         {
@@ -490,6 +496,11 @@ public class ElementChangeGate : BaseGimmick, IInteractableGimmick
             elemental.ChangeElement(newElement);
         }
     }
+}
+
+internal interface IElemental
+{
+    void ChangeElement(ElementChangeGate.Element newElement);
 }
 
 // ポータルドア
@@ -595,6 +606,16 @@ public class Flamethrower : BaseGimmick
     }
 }
 
+
+public class Switch : BaseGimmick, IInteractableGimmick
+{
+    public bool IsActivated { get; private set; }
+
+    public void Interact(GameObject interactor)
+    {
+        IsActivated = !IsActivated;
+    }
+}
 // スイッチ連動ギミック
 public class SwitchActivatedGimmick : BaseGimmick
 {
@@ -656,6 +677,11 @@ public class UnderwaterBreathingZone : BaseGimmick, IAreaGimmick
             oxygenDependent.ReplenishOxygen(oxygenReplenishRate * Time.deltaTime);
         }
     }
+}
+
+internal interface IOxygenDependent
+{
+    void ReplenishOxygen(float v);
 }
 
 // 重力制御装置
@@ -721,6 +747,11 @@ public class TimeReverser : BaseGimmick, ITimedGimmick
     }
 }
 
+internal interface IReversible
+{
+    void ReverseTime(float deltaTime);
+}
+
 // 影潜り能力付与装置
 public class ShadowMergeDevice : BaseGimmick, IInteractableGimmick
 {
@@ -740,6 +771,12 @@ public class ShadowMergeDevice : BaseGimmick, IInteractableGimmick
         yield return new WaitForSeconds(duration);
         shadowMergeable.DisableShadowMerge();
     }
+}
+
+internal interface IShadowMergeable
+{
+    void DisableShadowMerge();
+    void EnableShadowMerge();
 }
 
 // 壁すり抜けゾーン

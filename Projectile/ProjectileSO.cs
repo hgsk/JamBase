@@ -1,5 +1,19 @@
 using UnityEngine;
-using System.Collections.Generic;
+
+public class ProjectileInfoSO : ScriptableObject {
+    public string projectileName;
+    public float speed;
+    public float baseDamage;
+    public ProjectileBehaviorSO behavior;
+    public float lifeTime;
+    public GameObject projectilePrefab; 
+    public List<SpecialProperty> specialProperties;
+}
+
+public class SpecialProperty {
+    public string key;
+    public float value;
+}
 
 // 基本的なプロジェクタイル振る舞い
 [CreateAssetMenu(fileName = "Standard Projectile Behavior", menuName = "Projectiles/Behaviors/Standard")]
@@ -122,23 +136,21 @@ public class HomingProjectileBehaviorSO : ProjectileBehaviorSO
 
     public override void Initialize(ProjectileInstance projectile)
     {
-        projectile.SetRuntimeProperty("Target", null);
+        projectile.SetRuntimeProperty("Target", 0f);
     }
 
     public override void Update(ProjectileInstance projectile)
     {
-        GameObject target = projectile.GetRuntimeProperty("Target") as GameObject;
-        if (target == null || !target.activeInHierarchy)
+        var target = projectile.visual.gameObject;
+        if (target == null)
         {
             target = FindNearestTarget(projectile);
-            projectile.SetRuntimeProperty("Target", target);
+            projectile.SetRuntimeProperty("Target", 0f);
+            return;
         }
 
-        if (target != null)
-        {
-            Vector3 directionToTarget = (target.transform.position - projectile.state.position).normalized;
-            projectile.state.direction = Vector3.Slerp(projectile.state.direction, directionToTarget, turnSpeed * Time.deltaTime);
-        }
+        Vector3 directionToTarget = (target.transform.position - projectile.state.position).normalized;
+        projectile.state.direction = Vector3.Slerp(projectile.state.direction, directionToTarget, turnSpeed * Time.deltaTime);
 
         projectile.state.position += projectile.state.direction * projectile.Info.speed * Time.deltaTime;
     }

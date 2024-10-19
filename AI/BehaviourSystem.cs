@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 // FSMの状態基本クラス
 public abstract class State : ScriptableObject
@@ -197,6 +197,7 @@ public class BTChangeState : BTNode
 public class AIDecisionSettings : ScriptableObject
 {
     public State initialState;
+    internal List<State> allStates;
 }
 
 // AI意思決定システム本体

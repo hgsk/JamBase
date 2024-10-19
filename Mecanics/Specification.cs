@@ -243,6 +243,7 @@ public class PairSpec : SpecSO<PokerHandState, PokerHandMatchResult>
     }
 }
 
+/*
 public class GameManager : MonoBehaviour
 {
     public ThreeMatchWinCondition threeMatchCondition;
@@ -289,3 +290,4 @@ public class GameManager : MonoBehaviour
         }
     }
 }
+*/
