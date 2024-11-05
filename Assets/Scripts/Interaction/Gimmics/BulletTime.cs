@@ -8,6 +8,7 @@ public class BulletTime : BaseGimmick, ITimedGimmick
 
     public void StartTimer()
     {
+        Debug.Log("BulletTime Start");
         StartCoroutine(BulletTimeCoroutine());
     }
 
