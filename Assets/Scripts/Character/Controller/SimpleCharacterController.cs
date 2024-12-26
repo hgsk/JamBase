@@ -20,6 +20,8 @@ public class SimpleCharacterController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         playerInput = GetComponent<PlayerInput>();
+        // #8 FixedTimeを変更したときにコマ落ちしないように補間をする
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
     // 移動入力用のパブリックメソッド
