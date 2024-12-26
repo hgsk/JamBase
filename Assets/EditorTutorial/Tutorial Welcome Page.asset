@@ -17,11 +17,11 @@ MonoBehaviour:
       m_Calls: []
   m_Image: {fileID: 0}
   m_WindowTitle:
-    m_Untranslated: Window Title
+    m_Untranslated: Game Jam Base Tutorial
   m_Title:
-    m_Untranslated: This Is the Title
+    m_Untranslated: "Game Jam Base\u306E\u30C1\u30E5\u30FC\u30C8\u30EA\u30A2\u30EB\u3092\u958B\u59CB\u3057\u307E\u3059"
   m_Description:
-    m_Untranslated: This is the description.
+    m_Untranslated: "Game Jam Base\u306E\u57FA\u672C\u7684\u306A\u4F7F\u3044\u65B9\u3092\u5B66\u3073\u307E\u3059\u3002"
   m_Buttons:
   - Text:
       m_Untranslated: Close

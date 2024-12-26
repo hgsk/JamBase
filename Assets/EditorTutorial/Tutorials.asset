@@ -28,9 +28,9 @@ MonoBehaviour:
   Sections:
   - OrderInView: 0
     Heading:
-      m_Untranslated: Tutorial title
+      m_Untranslated: "\u30B2\u30FC\u30E0\u30B7\u30FC\u30F3"
     Text:
-      m_Untranslated: Tutorial description
+      m_Untranslated: "\u30B2\u30FC\u30E0\u30B7\u30FC\u30F3\u306E\u8003\u3048\u65B9\u3092\u5B66\u3073\u307E\u3059\u3002"
     Metadata: 
     Url: 
     Image: {fileID: 0}
